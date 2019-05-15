@@ -7,6 +7,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
+import akka.stream.ThrottleMode;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import scala.concurrent.duration.Duration;
 
 public class StreamActor extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
@@ -33,7 +35,8 @@ public class StreamActor extends AbstractActor {
                     //final Flow flow = Flow.of(String.class).map(val -> val * 2);
                     final Materializer materializer = ActorMaterializer.create(UserInterface.system);
                     final Sink<String, CompletionStage<Done>> sinkPrint = Sink.foreach(i -> System.out.println(i));
-                    source.runWith(sinkPrint, materializer);
+                    source.throttle(1, Duration.create(1, "seconds"), 1, ThrottleMode.shaping())
+                            .runWith(sinkPrint, materializer);
                 })
                 .matchAny(o -> log.info("received unknown message"))
                 .build();

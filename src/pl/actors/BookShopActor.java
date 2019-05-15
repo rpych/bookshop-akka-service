@@ -22,9 +22,6 @@ import static pl.service.Service.STREAM;
 public class BookShopActor extends AbstractActor {
 
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-    private boolean isBookSearchedInDatabase = false;
-    private Double bookPrice = -1.0;
-    private ActorRef streamActor;
 
     @Override
     public AbstractActor.Receive createReceive() {
@@ -43,23 +40,7 @@ public class BookShopActor extends AbstractActor {
                     } else if (serviceType.equals(STREAM)) {
                         System.out.println("STREAM actor");
                         context().child("streamActor").get().tell(title, getSelf());
-                        //throttle(1, Duration.ofSeconds(1)).
                     }
-                })
-                .match(Double.class, price -> {
-                    if(!isBookSearchedInDatabase){
-                        bookPrice = price;
-                        isBookSearchedInDatabase = true;
-                    }
-                    else if(isBookSearchedInDatabase && price > 0.0){
-                        bookPrice = price;
-                    }
-                    if(isBookSearchedInDatabase){
-                        isBookSearchedInDatabase = false;
-                        System.out.println("Book price is = " + bookPrice);
-                        //getSender().tell(bookPrice, getSelf());
-                    }
-
                 })
                 .match(ReplyForSearchMsg.class, reply -> {
                     Double price = reply.price;
@@ -84,7 +65,7 @@ public class BookShopActor extends AbstractActor {
         context().actorOf(Props.create(SearchActor.class, "database1.txt"), "searchActorFirst");
         context().actorOf(Props.create(SearchActor.class, "database2.txt"), "searchActorSec");
         context().actorOf(Props.create(OrderActor.class, "orders.txt"), "orderActor");
-        streamActor = context().actorOf(Props.create(StreamActor.class), "streamActor");
+        context().actorOf(Props.create(StreamActor.class), "streamActor");
     }
 
     private static SupervisorStrategy strategy

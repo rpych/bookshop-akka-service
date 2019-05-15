@@ -55,7 +55,7 @@ public class UserInterface {
     public String chooseBook() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String title = "";
-        System.out.println("Enter book title to search for:\n>>");
+        System.out.print("Enter book title to search for:\n>>");
         title = br.readLine();
         return title;
     }
