@@ -1,19 +1,28 @@
 package pl.user;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import pl.actors.BookShopActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import pl.actors.UserActor;
 import pl.service.MessageRequest;
 import pl.service.Service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class UserInterface {
-    public final static ActorSystem system = ActorSystem.create("local_system");
-    final ActorRef actor = system.actorOf(Props.create(BookShopActor.class), "bookshop");
+    static File configFile = new File("remote_app.conf");
+    static Config config = ConfigFactory.parseFile(configFile);
+    public final static ActorSystem system = ActorSystem.create("local_system", config);
+    public final ActorRef actor = system.actorOf(Props.create(UserActor.class), "local1");
+    //final ActorRef bookshopActor = system.actorSelection("akka.tcp://remote_system@127.0.0.1:3552/user/remote").anchor();            //system.actorOf(Props.create(BookShopActor.class), "bookshop");
 
     public UserInterface() { }
 
@@ -59,6 +68,7 @@ public class UserInterface {
         title = br.readLine();
         return title;
     }
+
 
 
 }

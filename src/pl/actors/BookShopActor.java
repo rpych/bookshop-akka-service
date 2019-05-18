@@ -1,16 +1,10 @@
 package pl.actors;
 
-import akka.NotUsed;
 import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.DeciderBuilder;
-import akka.stream.ActorMaterializer;
-import akka.stream.Materializer;
-import akka.stream.javadsl.Sink;
-import akka.stream.javadsl.Source;
 import pl.service.*;
-import pl.user.UserInterface;
 import scala.concurrent.duration.Duration;
 
 import static akka.actor.SupervisorStrategy.restart;
@@ -31,30 +25,20 @@ public class BookShopActor extends AbstractActor {
                     String title = m.title;
                     if (serviceType.equals(SEARCH)) {
                         System.out.println("SEARCH actor");
-                        context().child("searchActorFirst").get().tell(m, getSelf());
-                        context().child("searchActorSec").get().tell(m, getSelf());
+                        context().child("searchActorFirst").get().forward(m, getContext());
+                        context().child("searchActorSec").get().forward(m, getContext());
                     } else if (serviceType.equals(ORDER)) {
-                        context().child("searchActorFirst").get().tell(m, getSelf());
-                        context().child("searchActorSec").get().tell(m, getSelf());
+                        context().child("searchActorFirst").get().forward(m, getContext());
+                        context().child("searchActorSec").get().forward(m, getContext());
                         System.out.println("ORDER actor");
                     } else if (serviceType.equals(STREAM)) {
                         System.out.println("STREAM actor");
-                        context().child("streamActor").get().tell(title, getSelf());
+                        context().child("streamActor").get().forward(title, getContext());
                     }
-                })
-                .match(ReplyForSearchMsg.class, reply -> {
-                    Double price = reply.price;
-                    System.out.println("Book price is = " + price);
                 })
                 .match(ReplyForSearchMsgFromOrder.class, reply -> {
                     String title = reply.title;
-                    context().child("orderActor").get().tell(title, getSelf()); // send task to child
-                })
-                .match(String.class, line -> {
-                    System.out.println(line);
-                })
-                .match(Boolean.class, approval -> {
-                    System.out.println("Book successfully ordered = "+ approval);
+                    context().child("orderActor").get().tell(title, getSender());
                 })
                 .matchAny(o -> log.info("received unknown message"))
                 .build();

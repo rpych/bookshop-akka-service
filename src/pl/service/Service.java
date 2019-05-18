@@ -1,6 +1,8 @@
 package pl.service;
 
-public enum Service {
+import java.io.Serializable;
+
+public enum Service implements Serializable {
     SEARCH,
     ORDER,
     STREAM;

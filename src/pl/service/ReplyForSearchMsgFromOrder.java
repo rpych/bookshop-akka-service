@@ -1,6 +1,8 @@
 package pl.service;
 
-public class ReplyForSearchMsgFromOrder {
+import java.io.Serializable;
+
+public class ReplyForSearchMsgFromOrder implements Serializable {
     public String title;
     public Service serviceType;
 

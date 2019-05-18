@@ -1,6 +1,8 @@
 package pl.service;
 
-public class MessageRequest {
+import java.io.Serializable;
+
+public class MessageRequest implements Serializable {
     public String title;
     public Service serviceType;
 

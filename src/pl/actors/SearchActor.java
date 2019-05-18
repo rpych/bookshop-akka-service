@@ -32,7 +32,7 @@ public class SearchActor extends AbstractActor {
                     else if(serviceType.equals(ORDER)){
                         Double price = searchForBook(s.title);
                         ReplyForSearchMsgFromOrder reply = new ReplyForSearchMsgFromOrder(s.title, s.serviceType);
-                        getSender().tell(reply, getSelf());
+                        getContext().getParent().forward(reply, getContext());
                     }
                     }
 

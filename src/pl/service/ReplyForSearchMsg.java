@@ -1,6 +1,8 @@
 package pl.service;
 
-public class ReplyForSearchMsg {
+import java.io.Serializable;
+
+public class ReplyForSearchMsg implements Serializable {
 
     public Double price;
     public Service serviceType;

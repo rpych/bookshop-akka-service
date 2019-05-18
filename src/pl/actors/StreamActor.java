@@ -3,6 +3,7 @@ package pl.actors;
 import akka.Done;
 import akka.NotUsed;
 import akka.actor.AbstractActor;
+import akka.actor.Status;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.stream.ActorMaterializer;
@@ -11,6 +12,7 @@ import akka.stream.ThrottleMode;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
+import pl.user.ServerApp;
 import pl.user.UserInterface;
 
 
@@ -33,8 +35,8 @@ public class StreamActor extends AbstractActor {
                     List<String> records = getLinesFromBook(title);
                     final Source<String, NotUsed> source = Source.from(records);
                     //final Flow flow = Flow.of(String.class).map(val -> val * 2);
-                    final Materializer materializer = ActorMaterializer.create(UserInterface.system);
-                    final Sink<String, CompletionStage<Done>> sinkPrint = Sink.foreach(i -> System.out.println(i));
+                    final Materializer materializer = ActorMaterializer.create(getContext().getSystem());  // materialize with system in which actor exists
+                    final Sink<String, NotUsed> sinkPrint = Sink.actorRef(getSender(), "DONE");
                     source.throttle(1, Duration.create(1, "seconds"), 1, ThrottleMode.shaping())
                             .runWith(sinkPrint, materializer);
                 })
