@@ -1,27 +1,20 @@
 package pl.actors;
 
-import akka.Done;
 import akka.NotUsed;
 import akka.actor.AbstractActor;
-import akka.actor.Status;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import akka.stream.ThrottleMode;
-import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import pl.user.ServerApp;
-import pl.user.UserInterface;
-
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 import scala.concurrent.duration.Duration;
 
 public class StreamActor extends AbstractActor {
@@ -34,7 +27,6 @@ public class StreamActor extends AbstractActor {
                 .match(String.class, title -> {
                     List<String> records = getLinesFromBook(title);
                     final Source<String, NotUsed> source = Source.from(records);
-                    //final Flow flow = Flow.of(String.class).map(val -> val * 2);
                     final Materializer materializer = ActorMaterializer.create(getContext().getSystem());  // materialize with system in which actor exists
                     final Sink<String, NotUsed> sinkPrint = Sink.actorRef(getSender(), "DONE");
                     source.throttle(1, Duration.create(1, "seconds"), 1, ThrottleMode.shaping())

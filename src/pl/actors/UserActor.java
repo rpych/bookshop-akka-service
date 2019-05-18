@@ -23,12 +23,11 @@ public class UserActor extends AbstractActor {
                     System.out.println(msg);
                 })
                 .match(Boolean.class, approval -> {
-                    System.out.println("Book successfully ordered = "+ approval);
+                    System.out.println("Status of book ordering = "+ approval);
                 })
                 .match(ReplyForSearchMsg.class, reply -> {
                     Double price = reply.price;
-                    String msg = "Book price is = " + price;
-                    System.out.println(msg);
+                    System.out.println("Book price is = " + price);
                 })
                 .matchAny(o -> log.info("received unknown message"))
                 .build();

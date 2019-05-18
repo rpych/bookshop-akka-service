@@ -18,11 +18,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class UserInterface {
-    static File configFile = new File("remote_app.conf");
-    static Config config = ConfigFactory.parseFile(configFile);
-    public final static ActorSystem system = ActorSystem.create("local_system", config);
+    File configFile = new File("remote_app.conf");
+    Config config = ConfigFactory.parseFile(configFile);
+    public final ActorSystem system = ActorSystem.create("local_system", config);
     public final ActorRef actor = system.actorOf(Props.create(UserActor.class), "local1");
-    //final ActorRef bookshopActor = system.actorSelection("akka.tcp://remote_system@127.0.0.1:3552/user/remote").anchor();            //system.actorOf(Props.create(BookShopActor.class), "bookshop");
 
     public UserInterface() { }
 
@@ -64,7 +63,7 @@ public class UserInterface {
     public String chooseBook() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String title = "";
-        System.out.print("Enter book title to search for:\n>>");
+        System.out.print("Enter book title you are looking for:\n>>");
         title = br.readLine();
         return title;
     }

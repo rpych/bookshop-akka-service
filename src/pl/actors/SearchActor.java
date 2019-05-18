@@ -30,7 +30,7 @@ public class SearchActor extends AbstractActor {
                         getSender().tell(reply, getSelf());
                     }
                     else if(serviceType.equals(ORDER)){
-                        Double price = searchForBook(s.title);
+                        searchForBook(s.title);
                         ReplyForSearchMsgFromOrder reply = new ReplyForSearchMsgFromOrder(s.title, s.serviceType);
                         getContext().getParent().forward(reply, getContext());
                     }
@@ -53,7 +53,6 @@ public class SearchActor extends AbstractActor {
             }
         }
         brFile.close();
-        //return -1.0;
         throw new ElementNotFoundException("Book with this title not found");
     }
 

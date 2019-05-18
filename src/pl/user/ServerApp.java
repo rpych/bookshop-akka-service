@@ -18,7 +18,6 @@ public class ServerApp {
     public static final ActorSystem system = ActorSystem.create("remote_system", config);
 
     public static void main(String[] args) throws IOException {
-        // create actor system & actors
 
         final ActorRef remote = system.actorOf(Props.create(BookShopActor.class), "remote");
 

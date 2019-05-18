@@ -4,8 +4,11 @@ import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.DeciderBuilder;
+import akka.routing.RoundRobinPool;
 import pl.service.*;
 import scala.concurrent.duration.Duration;
+
+import java.io.FileNotFoundException;
 
 import static akka.actor.SupervisorStrategy.restart;
 import static akka.actor.SupervisorStrategy.resume;
@@ -33,12 +36,12 @@ public class BookShopActor extends AbstractActor {
                         System.out.println("ORDER actor");
                     } else if (serviceType.equals(STREAM)) {
                         System.out.println("STREAM actor");
-                        context().child("streamActor").get().forward(title, getContext());
+                        context().child(StreamActor.class.getSimpleName()).get().forward(title, getContext());
                     }
                 })
                 .match(ReplyForSearchMsgFromOrder.class, reply -> {
                     String title = reply.title;
-                    context().child("orderActor").get().tell(title, getSender());
+                    context().child(OrderActor.class.getSimpleName()).get().tell(title, getSender());
                 })
                 .matchAny(o -> log.info("received unknown message"))
                 .build();
@@ -48,13 +51,16 @@ public class BookShopActor extends AbstractActor {
     public void preStart() throws Exception {
         context().actorOf(Props.create(SearchActor.class, "database1.txt"), "searchActorFirst");
         context().actorOf(Props.create(SearchActor.class, "database2.txt"), "searchActorSec");
-        context().actorOf(Props.create(OrderActor.class, "orders.txt"), "orderActor");
-        context().actorOf(Props.create(StreamActor.class), "streamActor");
+        context().actorOf(Props.create(OrderActor.class, "orders.txt").withRouter(new RoundRobinPool(8)),
+                OrderActor.class.getSimpleName());
+        context().actorOf(Props.create(StreamActor.class).withRouter(new RoundRobinPool(8)),
+                StreamActor.class.getSimpleName());
     }
 
     private static SupervisorStrategy strategy
         = new OneForOneStrategy(10, Duration.create("1 minute"), DeciderBuilder.
                 match(ElementNotFoundException.class, e -> resume()).
+                match(FileNotFoundException.class, e -> resume()).
                 matchAny(o -> restart()).
                 build());
 
