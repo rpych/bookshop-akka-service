@@ -1,4 +1,4 @@
-package pl.user;
+package pl.server;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
