@@ -10,7 +10,7 @@ import pl.service.ReplyForSearchMsg;
 
 public class UserActor extends AbstractActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
-    final ActorSelection bookshopActor = getContext().actorSelection("akka.tcp://remote_system@127.0.0.1:3552/user/remote");            //system.actorOf(Props.create(BookShopActor.class), "bookshop");
+    final ActorSelection bookshopActor = getContext().actorSelection("akka.tcp://remote_system@127.0.0.1:3552/user/remote");
 
 
     @Override
